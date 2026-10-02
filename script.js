@@ -61,6 +61,7 @@ let completedSessions = 0;
 let buddyIndex = 0;
 
 const buddies = ["🐱", "🐰", "🐻", "🐼", "🐸", "🦊", "🐹", "🐥"];
+
 const encouragements = [
   "You're doing amazing! Keep going! 💗",
   "One step at a time, bestie! 🌷",
@@ -73,22 +74,28 @@ const encouragements = [
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(studySets));
 }
+
 function saveEvents() {
   localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
 }
+
 function saveTodos() {
   localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
 }
+
 function saveHistory() {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(quizHistory));
 }
+
 function getCurrentSet() {
   return studySets.find(set => set.id === currentSetId);
 }
+
 function countPoints(set) {
   if (!set || !set.notes) return 0;
   return set.notes.split("\n").filter(line => line.trim()).length;
 }
+
 function shuffleArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -97,11 +104,18 @@ function shuffleArray(array) {
   }
   return shuffled;
 }
+
 function validDate(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-  const parsed = new Date(date + "T00:00:00");
-  return !Number.isNaN(parsed.getTime()) &&
-    parsed.toISOString().slice(0, 10) === date;
+  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return false;
+  }
+
+  const [year, month, day] = date.split("-").map(Number);
+  const parsed = new Date(year, month - 1, day);
+
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day;
 }
 
 // NAVIGATION
@@ -109,44 +123,54 @@ function showPage(pageId) {
   document.querySelectorAll(".screen").forEach(screen => {
     screen.classList.remove("active");
   });
+
   const page = document.getElementById(pageId);
   if (page) page.classList.add("active");
 }
+
 function showHome() {
   updateStats();
   showPage("home");
 }
+
 function showSets() {
   displaySets();
   showPage("sets");
 }
+
 function showCreate() {
   document.getElementById("setTitle").value = "";
   document.getElementById("setSubject").value = "";
   document.getElementById("setNotes").value = "";
   showPage("create");
 }
+
 function showStudy() {
   if (getCurrentSet()) showPage("study");
   else showSets();
 }
+
 function showCalendar() {
   displayCalendar();
   displayEvents();
   showPage("calendar");
 }
+
 function showTodo() {
   displayTodos();
   showPage("todo");
 }
+
 function showTimer() {
   updateTimerDisplay();
   showPage("timer");
 }
+
 function showProgress() {
   renderProgress();
   showPage("progress");
 }
+
 function showFlashcardCreator() {
   displayFlashcardList();
   showPage("flashcardCreator");
@@ -197,6 +221,7 @@ function editSet(id) {
 
   const title = prompt("Edit study set title:", set.title);
   if (title === null) return;
+
   if (!title.trim()) {
     alert("The title cannot be empty.");
     return;
@@ -204,12 +229,14 @@ function editSet(id) {
 
   const subject = prompt("Edit subject:", set.subject);
   if (subject === null) return;
+
   const notes = prompt("Edit study notes:", set.notes);
   if (notes === null) return;
 
   set.title = title.trim();
   set.subject = subject.trim() || "General";
   set.notes = notes.trim();
+
   saveData();
   displaySets();
   updateStats();
@@ -221,6 +248,7 @@ function deleteSet(id) {
 
   studySets = studySets.filter(set => set.id !== id);
   if (currentSetId === id) currentSetId = null;
+
   saveData();
   updateStats();
   displaySets();
@@ -230,6 +258,7 @@ function deleteSet(id) {
 function displaySets() {
   const list = document.getElementById("setList");
   if (!list) return;
+
   list.innerHTML = "";
 
   if (!studySets.length) {
@@ -282,21 +311,57 @@ function displaySets() {
 
 // HOME STATISTICS
 function updateStats() {
-  const totalPoints = studySets.reduce((total, set) => total + countPoints(set), 0);
-  document.getElementById("setCount").textContent = studySets.length;
-  document.getElementById("noteCount").textContent = totalPoints;
-  document.getElementById("bestScore").textContent = bestScore + "%";
+  const totalPoints = studySets.reduce(
+    (total, set) => total + countPoints(set), 0
+  );
+
+  const setCount = document.getElementById("setCount");
+  const noteCount = document.getElementById("noteCount");
+  const scoreDisplay = document.getElementById("bestScore");
+
+  if (setCount) setCount.textContent = studySets.length;
+  if (noteCount) noteCount.textContent = totalPoints;
+  if (scoreDisplay) scoreDisplay.textContent = bestScore + "%";
 }
 
+// NOTES
 // NOTES
 function openNotes() {
   const set = getCurrentSet();
   if (!set) return;
 
-  document.getElementById("notesTitle").textContent = set.title + " — Notes";
-  document.getElementById("notesContent").textContent =
-    set.notes.trim() ? set.notes : "No notes have been added to this set yet.";
+  document.getElementById("notesTitle").textContent =
+    set.title + " — Notes";
+
+  const notesContent = document.getElementById("notesContent");
+
+  if (set.notesHtml) {
+    notesContent.innerHTML = set.notesHtml;
+  } else {
+    notesContent.textContent = set.notes || "No notes have been added to this set yet.";
+  }
+
   showPage("notes");
+}
+
+// HIGHLIGHT SELECTED TEXT
+function highlightText(color) {
+  const notesContent = document.getElementById("notesContent");
+  notesContent.focus();
+
+  document.execCommand("styleWithCSS", false, true);
+  document.execCommand("hiliteColor", false, color);
+
+  saveNoteHighlights();
+}
+
+// SAVE HIGHLIGHTS
+function saveNoteHighlights() {
+  const set = getCurrentSet();
+  if (!set) return;
+
+  set.notesHtml = document.getElementById("notesContent").innerHTML;
+  saveData();
 }
 
 // FLASHCARD CREATOR
@@ -321,8 +386,10 @@ function addFlashcard() {
 
   set.cards.push({ id: Date.now() + Math.random(), front, back });
   saveData();
+
   frontInput.value = "";
   backInput.value = "";
+
   displayFlashcardList();
   displaySets();
   updateStats();
@@ -332,6 +399,7 @@ function displayFlashcardList() {
   const list = document.getElementById("flashcardList");
   const set = getCurrentSet();
   if (!list || !set) return;
+
   list.innerHTML = "";
 
   if (!set.cards.length) {
@@ -371,6 +439,7 @@ function editFlashcard(id) {
 
   const front = prompt("Edit the front of the flashcard:", card.front);
   if (front === null) return;
+
   const back = prompt("Edit the answer:", card.back);
   if (back === null) return;
 
@@ -381,6 +450,7 @@ function editFlashcard(id) {
 
   card.front = front.trim();
   card.back = back.trim();
+
   saveData();
   displayFlashcardList();
   displayCurrentCard();
@@ -391,7 +461,10 @@ function deleteFlashcard(id) {
   if (!set || !confirm("Delete this flashcard?")) return;
 
   set.cards = set.cards.filter(card => card.id !== id);
-  currentCardIndex = Math.min(currentCardIndex, Math.max(0, set.cards.length - 1));
+  currentCardIndex = Math.min(
+    currentCardIndex, Math.max(0, set.cards.length - 1)
+  );
+
   saveData();
   displayFlashcardList();
   displayCurrentCard();
@@ -423,6 +496,8 @@ function displayCurrentCard() {
   const back = document.getElementById("cardBack");
   const progress = document.getElementById("cardProgress");
 
+  if (!flashcard || !front || !back || !progress) return;
+
   flashcard.classList.remove("flipped");
 
   if (!set.cards.length) {
@@ -434,18 +509,20 @@ function displayCurrentCard() {
 
   currentCardIndex = Math.min(currentCardIndex, set.cards.length - 1);
   const card = set.cards[currentCardIndex];
+
   front.textContent = card.front;
   back.textContent = card.back;
   progress.textContent = (currentCardIndex + 1) + " / " + set.cards.length;
 }
 
 function flipCard() {
-  document.getElementById("flashcard").classList.toggle("flipped");
+  document.getElementById("flashcard")?.classList.toggle("flipped");
 }
 
 function nextCard() {
   const set = getCurrentSet();
   if (!set || !set.cards.length) return;
+
   currentCardIndex = (currentCardIndex + 1) % set.cards.length;
   displayCurrentCard();
 }
@@ -453,15 +530,19 @@ function nextCard() {
 function prevCard() {
   const set = getCurrentSet();
   if (!set || !set.cards.length) return;
-  currentCardIndex = (currentCardIndex - 1 + set.cards.length) % set.cards.length;
+
+  currentCardIndex =
+    (currentCardIndex - 1 + set.cards.length) % set.cards.length;
   displayCurrentCard();
 }
 
 function shuffleFlashcards() {
   const set = getCurrentSet();
   if (!set || set.cards.length < 2) return;
+
   set.cards = shuffleArray(set.cards);
   currentCardIndex = 0;
+
   saveData();
   displayCurrentCard();
   displayFlashcardList();
@@ -473,6 +554,7 @@ function markCardReviewed() {
 
   reviewedCards++;
   localStorage.setItem(REVIEWED_KEY, String(reviewedCards));
+
   currentCardIndex = (currentCardIndex + 1) % set.cards.length;
   displayCurrentCard();
   renderProgress();
@@ -488,6 +570,7 @@ function openQuiz() {
   document.getElementById("quizCreator").classList.remove("hidden");
   document.getElementById("quizBox").classList.add("hidden");
   document.getElementById("quizResult").classList.add("hidden");
+
   displayQuizQuestions();
   showPage("quiz");
 }
@@ -500,9 +583,12 @@ function addQuizQuestion() {
   const choiceInputs = [1, 2, 3, 4].map(i =>
     document.getElementById("quizChoice" + i)
   );
+
   const question = questionInput.value.trim();
   const choices = choiceInputs.map(input => input.value.trim());
-  const correctAnswer = Number(document.getElementById("correctChoice").value);
+  const correctAnswer = Number(
+    document.getElementById("correctChoice").value
+  );
 
   if (!question || choices.some(choice => !choice)) {
     alert("Please enter a question and fill in all four choices.");
@@ -525,6 +611,7 @@ function addQuizQuestion() {
   questionInput.value = "";
   choiceInputs.forEach(input => input.value = "");
   document.getElementById("correctChoice").value = "0";
+
   displayQuizQuestions();
   displaySets();
 }
@@ -533,6 +620,7 @@ function displayQuizQuestions() {
   const set = getCurrentSet();
   const list = document.getElementById("quizQuestionList");
   if (!list || !set) return;
+
   list.innerHTML = "";
 
   if (!set.quizzes.length) {
@@ -575,22 +663,27 @@ function editQuizQuestion(id) {
 
   const newQuestion = prompt("Edit question:", question.question);
   if (newQuestion === null) return;
+
   if (!newQuestion.trim()) {
     alert("The question cannot be empty.");
     return;
   }
 
   const newChoices = [];
+
   for (let i = 0; i < 4; i++) {
     const answer = prompt(
       "Edit choice " + String.fromCharCode(65 + i) + ":",
       question.choices[i] || ""
     );
+
     if (answer === null) return;
+
     if (!answer.trim()) {
       alert("Answer choices cannot be empty.");
       return;
     }
+
     newChoices.push(answer.trim());
   }
 
@@ -603,9 +696,13 @@ function editQuizQuestion(id) {
     "Enter the correct choice letter (A, B, C, or D):",
     String.fromCharCode(65 + question.correctAnswer)
   );
+
   if (correct === null) return;
 
-  const correctIndex = ["A", "B", "C", "D"].indexOf(correct.trim().toUpperCase());
+  const correctIndex = ["A", "B", "C", "D"].indexOf(
+    correct.trim().toUpperCase()
+  );
+
   if (correctIndex === -1) {
     alert("Please enter A, B, C, or D.");
     return;
@@ -614,12 +711,14 @@ function editQuizQuestion(id) {
   question.question = newQuestion.trim();
   question.choices = newChoices;
   question.correctAnswer = correctIndex;
+
   saveData();
   displayQuizQuestions();
 }
 
 function deleteQuizQuestion(id) {
   if (!getCurrentSet()) return;
+
   quizQuestionToDelete = id;
   document.getElementById("deleteModalText").textContent =
     "Do you want to delete this quiz question?";
@@ -633,12 +732,16 @@ function closeDeleteModal() {
 
 function confirmDeleteQuiz() {
   const set = getCurrentSet();
+
   if (!set || quizQuestionToDelete === null) {
     closeDeleteModal();
     return;
   }
 
-  set.quizzes = set.quizzes.filter(question => question.id !== quizQuestionToDelete);
+  set.quizzes = set.quizzes.filter(
+    question => question.id !== quizQuestionToDelete
+  );
+
   saveData();
   displayQuizQuestions();
   closeDeleteModal();
@@ -647,6 +750,7 @@ function confirmDeleteQuiz() {
 function shuffleQuizQuestions() {
   const set = getCurrentSet();
   if (!set || set.quizzes.length < 2) return;
+
   set.quizzes = shuffleArray(set.quizzes);
   saveData();
   displayQuizQuestions();
@@ -655,6 +759,7 @@ function shuffleQuizQuestions() {
 // TAKE QUIZ
 function startQuiz() {
   const set = getCurrentSet();
+
   if (!set || !set.quizzes.length) {
     alert("Please add at least one quiz question first! 💗");
     return;
@@ -664,6 +769,7 @@ function startQuiz() {
     const shuffledChoices = shuffleArray(
       question.choices.map((text, originalIndex) => ({ text, originalIndex }))
     );
+
     return {
       question: question.question,
       choices: shuffledChoices.map(choice => choice.text),
@@ -676,9 +782,11 @@ function startQuiz() {
   currentQuestionIndex = 0;
   quizScore = 0;
   selectedAnswer = null;
+
   document.getElementById("quizCreator").classList.add("hidden");
   document.getElementById("quizBox").classList.remove("hidden");
   document.getElementById("quizResult").classList.add("hidden");
+
   showPage("quiz");
   displayQuestion();
 }
@@ -695,15 +803,20 @@ function displayQuestion() {
 
   document.getElementById("questionNumber").textContent =
     "QUESTION " + (currentQuestionIndex + 1);
+
   document.getElementById("quizProgress").textContent =
     (currentQuestionIndex + 1) + " / " + currentQuiz.length;
+
   document.getElementById("questionText").textContent = question.question;
 
   const options = document.getElementById("options");
   options.innerHTML = "";
   nextButton.disabled = true;
-  nextButton.textContent = currentQuestionIndex === currentQuiz.length - 1
-    ? "See Results →" : "Next Question →";
+
+  nextButton.textContent =
+    currentQuestionIndex === currentQuiz.length - 1
+      ? "See Results →"
+      : "Next Question →";
 
   document.getElementById("progressBar").style.width =
     (currentQuestionIndex / currentQuiz.length * 100) + "%";
@@ -727,7 +840,9 @@ function selectOption(button, answerIndex) {
 
   options.forEach((option, index) => {
     option.disabled = true;
-    if (index === question.correctAnswer) option.classList.add("correct");
+    if (index === question.correctAnswer) {
+      option.classList.add("correct");
+    }
   });
 
   if (answerIndex === question.correctAnswer) {
@@ -735,23 +850,31 @@ function selectOption(button, answerIndex) {
   } else {
     button.classList.add("wrong");
   }
+
   nextButton.disabled = false;
 }
 
 function nextQuestion() {
   if (selectedAnswer === null) return;
+
   currentQuestionIndex++;
-  if (currentQuestionIndex < currentQuiz.length) displayQuestion();
-  else showQuizResult();
+
+  if (currentQuestionIndex < currentQuiz.length) {
+    displayQuestion();
+  } else {
+    showQuizResult();
+  }
 }
 
 function showQuizResult() {
   if (!currentQuiz.length) return;
 
   const percentage = Math.round((quizScore / currentQuiz.length) * 100);
+
   document.getElementById("quizBox").classList.add("hidden");
   document.getElementById("quizCreator").classList.add("hidden");
   document.getElementById("quizResult").classList.remove("hidden");
+
   document.getElementById("finalScore").textContent = percentage + "%";
 
   let message = "Keep studying. You can do this! 💪";
@@ -768,8 +891,10 @@ function showQuizResult() {
   }
 
   const set = getCurrentSet();
+
   if (set) {
     set.bestScore = Math.max(set.bestScore || 0, percentage);
+
     quizHistory.unshift({
       id: Date.now(),
       setTitle: set.title,
@@ -778,6 +903,7 @@ function showQuizResult() {
       total: currentQuiz.length,
       date: new Date().toLocaleDateString()
     });
+
     saveData();
     saveHistory();
   }
@@ -813,12 +939,14 @@ function displayCalendar() {
 
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
+
   heading.textContent = calendarDate.toLocaleDateString(undefined, {
     month: "long",
     year: "numeric"
   });
 
   grid.innerHTML = "";
+
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const todayKey = toDateKey(new Date());
@@ -830,16 +958,22 @@ function displayCalendar() {
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const dayEvents = events.filter(event => event.date === dateKey);
+    const dateKey =
+      `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
+    const dayEvents = events.filter(event => event.date === dateKey);
     const cell = document.createElement("button");
     cell.type = "button";
     cell.className = "calendar-day";
+
     if (dateKey === todayKey) cell.classList.add("today");
     if (dateKey === selectedCalendarDate) cell.classList.add("selected");
     if (dayEvents.length) cell.classList.add("has-event");
-    cell.setAttribute("aria-label", `${dateKey}${dayEvents.length ? ", " + dayEvents.length + " event(s)" : ""}`);
+
+    cell.setAttribute(
+      "aria-label",
+      `${dateKey}${dayEvents.length ? ", " + dayEvents.length + " event(s)" : ""}`
+    );
 
     const number = document.createElement("span");
     number.className = "day-number";
@@ -849,7 +983,9 @@ function displayCalendar() {
     if (dayEvents.length) {
       const label = document.createElement("span");
       label.className = "day-event-label";
-      label.textContent = dayEvents.length === 1 ? dayEvents[0].title : `${dayEvents.length} events`;
+      label.textContent = dayEvents.length === 1
+        ? dayEvents[0].title
+        : `${dayEvents.length} events`;
       cell.appendChild(label);
     }
 
@@ -858,14 +994,19 @@ function displayCalendar() {
       displayCalendar();
       displayEvents(dateKey);
     });
+
     grid.appendChild(cell);
   }
+
   displayEvents(selectedCalendarDate);
 }
 
 function addEvent() {
   const titleInput = document.getElementById("eventTitle");
   const dateInput = document.getElementById("eventDate");
+
+  if (!titleInput || !dateInput) return;
+
   const title = titleInput.value.trim();
   const date = dateInput.value;
 
@@ -873,6 +1014,7 @@ function addEvent() {
     alert("Please enter an event name and date.");
     return;
   }
+
   if (!validDate(date)) {
     alert("Please select a valid date.");
     return;
@@ -881,27 +1023,39 @@ function addEvent() {
   events.push({ id: Date.now() + Math.random(), title, date });
   events.sort((a, b) => a.date.localeCompare(b.date));
   saveEvents();
+
   titleInput.value = "";
   dateInput.value = "";
+
   selectedCalendarDate = date;
-  calendarDate = new Date(date + "T00:00:00");
+  const [year, month, day] = date.split("-").map(Number);
+  calendarDate = new Date(year, month - 1, day);
+
   displayCalendar();
 }
 
 function displayEvents(filterDate = null) {
   const container = document.getElementById("calendarEvents");
   if (!container) return;
+
   container.innerHTML = "";
 
-  let shownEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
-  if (filterDate) shownEvents = shownEvents.filter(event => event.date === filterDate);
+  let shownEvents = [...events].sort(
+    (a, b) => a.date.localeCompare(b.date)
+  );
+
+  if (filterDate) {
+    shownEvents = shownEvents.filter(event => event.date === filterDate);
+  }
 
   const heading = document.createElement("h3");
   heading.textContent = filterDate
-    ? "Events on " + new Date(filterDate + "T00:00:00").toLocaleDateString(undefined, {
-      month: "long", day: "numeric", year: "numeric"
-    })
+    ? "Events on " + new Date(filterDate + "T00:00:00").toLocaleDateString(
+        undefined,
+        { month: "long", day: "numeric", year: "numeric" }
+      )
     : "Upcoming Events";
+
   container.appendChild(heading);
 
   if (!shownEvents.length) {
@@ -922,7 +1076,8 @@ function displayEvents(filterDate = null) {
 
     const date = document.createElement("p");
     date.textContent = new Date(event.date + "T00:00:00").toLocaleDateString(
-      undefined, { year: "numeric", month: "long", day: "numeric" }
+      undefined,
+      { year: "numeric", month: "long", day: "numeric" }
     );
 
     const edit = document.createElement("button");
@@ -946,6 +1101,7 @@ function editEvent(id) {
 
   const title = prompt("Edit event name:", event.title);
   if (title === null) return;
+
   const date = prompt("Edit date (YYYY-MM-DD):", event.date);
   if (date === null) return;
 
@@ -956,12 +1112,14 @@ function editEvent(id) {
 
   event.title = title.trim();
   event.date = date.trim();
+
   saveEvents();
   displayCalendar();
 }
 
 function deleteEvent(id) {
   if (!confirm("Delete this calendar event?")) return;
+
   events = events.filter(event => event.id !== id);
   saveEvents();
   displayCalendar();
@@ -972,12 +1130,16 @@ function addTodo() {
   const titleInput = document.getElementById("todoTitle");
   const dateInput = document.getElementById("todoDate");
   const priorityInput = document.getElementById("todoPriority");
+
+  if (!titleInput || !dateInput || !priorityInput) return;
+
   const title = titleInput.value.trim();
 
   if (!title) {
     alert("Please enter a task.");
     return;
   }
+
   if (dateInput.value && !validDate(dateInput.value)) {
     alert("Please enter a valid due date.");
     return;
@@ -1000,6 +1162,7 @@ function addTodo() {
 function displayTodos() {
   const list = document.getElementById("todoList");
   if (!list) return;
+
   list.innerHTML = "";
 
   if (!todos.length) {
@@ -1008,8 +1171,12 @@ function displayTodos() {
   }
 
   const sorted = [...todos].sort((a, b) => {
-    if (a.completed !== b.completed) return Number(a.completed) - Number(b.completed);
-    return (a.date || "9999-12-31").localeCompare(b.date || "9999-12-31");
+    if (a.completed !== b.completed) {
+      return Number(a.completed) - Number(b.completed);
+    }
+    return (a.date || "9999-12-31").localeCompare(
+      b.date || "9999-12-31"
+    );
   });
 
   sorted.forEach(todo => {
@@ -1018,6 +1185,7 @@ function displayTodos() {
 
     const title = document.createElement("h3");
     title.textContent = todo.title;
+
     if (todo.completed) {
       title.style.textDecoration = "line-through";
       title.style.opacity = "0.6";
@@ -1059,6 +1227,7 @@ function displayTodos() {
 function toggleTodo(id) {
   const todo = todos.find(item => item.id === id);
   if (!todo) return;
+
   todo.completed = !todo.completed;
   saveTodos();
   displayTodos();
@@ -1071,20 +1240,28 @@ function editTodo(id) {
 
   const title = prompt("Edit task:", todo.title);
   if (title === null) return;
-  const date = prompt("Edit due date (YYYY-MM-DD, leave blank for none):", todo.date || "");
+
+  const date = prompt(
+    "Edit due date (YYYY-MM-DD, leave blank for none):",
+    todo.date || ""
+  );
   if (date === null) return;
+
   const priority = prompt("Priority (Low, Medium, High):", todo.priority);
   if (priority === null) return;
 
   const normalizedPriority = priority.trim().toLowerCase();
+
   if (!["low", "medium", "high"].includes(normalizedPriority)) {
     alert("Priority must be Low, Medium, or High.");
     return;
   }
+
   if (date.trim() && !validDate(date.trim())) {
     alert("Please enter the date in YYYY-MM-DD format.");
     return;
   }
+
   if (!title.trim()) {
     alert("Task name cannot be empty.");
     return;
@@ -1092,13 +1269,16 @@ function editTodo(id) {
 
   todo.title = title.trim();
   todo.date = date.trim();
-  todo.priority = normalizedPriority[0].toUpperCase() + normalizedPriority.slice(1);
+  todo.priority =
+    normalizedPriority[0].toUpperCase() + normalizedPriority.slice(1);
+
   saveTodos();
   displayTodos();
 }
 
 function deleteTodo(id) {
   if (!confirm("Delete this task?")) return;
+
   todos = todos.filter(todo => todo.id !== id);
   saveTodos();
   displayTodos();
@@ -1112,6 +1292,7 @@ function getTimerLength(mode) {
 
 function setTimerMode(mode) {
   if (!["focus", "short", "long"].includes(mode)) return;
+
   pauseTimer();
   timerMode = mode;
   timerSeconds = getTimerLength(mode);
@@ -1136,29 +1317,36 @@ function updateTimerDisplay() {
   const display = document.getElementById("timerDisplay");
   const modeLabel = document.getElementById("timerMode");
   const sessionsLabel = document.getElementById("timerSessions");
+
   if (!display) return;
 
   const minutes = Math.floor(timerSeconds / 60);
   const seconds = timerSeconds % 60;
+
   display.textContent = String(minutes).padStart(2, "0") + ":" +
     String(seconds).padStart(2, "0");
 
   if (modeLabel) {
-    modeLabel.textContent = timerMode === "focus" ? "Focus Time" :
-      timerMode === "short" ? "Short Break" : "Long Break";
+    modeLabel.textContent = timerMode === "focus"
+      ? "Focus Time"
+      : timerMode === "short" ? "Short Break" : "Long Break";
   }
+
   if (sessionsLabel) {
     sessionsLabel.textContent = "Completed sessions: " + completedSessions;
   }
+
   updateModeButtons();
 }
 
 function readTimerSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(TIMER_SETTINGS_KEY));
+
     if (saved && typeof saved === "object") {
       ["focus", "short", "long"].forEach(mode => {
         const value = Number(saved[mode]);
+
         if (Number.isInteger(value) && value >= 1 && value <= 180) {
           timerSettings[mode] = value;
         }
@@ -1168,27 +1356,43 @@ function readTimerSettings() {
     // Use default timer durations.
   }
 
-  document.getElementById("focusMinutes").value = timerSettings.focus;
-  document.getElementById("shortMinutes").value = timerSettings.short;
-  document.getElementById("longMinutes").value = timerSettings.long;
+  const focusInput = document.getElementById("focusMinutes");
+  const shortInput = document.getElementById("shortMinutes");
+  const longInput = document.getElementById("longMinutes");
+
+  if (focusInput) focusInput.value = timerSettings.focus;
+  if (shortInput) shortInput.value = timerSettings.short;
+  if (longInput) longInput.value = timerSettings.long;
 }
 
 function applyCustomTimes() {
-  const focus = Number(document.getElementById("focusMinutes").value);
-  const short = Number(document.getElementById("shortMinutes").value);
-  const long = Number(document.getElementById("longMinutes").value);
+  const focusInput = document.getElementById("focusMinutes");
+  const shortInput = document.getElementById("shortMinutes");
+  const longInput = document.getElementById("longMinutes");
+
+  if (!focusInput || !shortInput || !longInput) {
+    alert("Timer settings inputs are missing from the page.");
+    return;
+  }
+
+  const focus = Number(focusInput.value);
+  const short = Number(shortInput.value);
+  const long = Number(longInput.value);
 
   if (
     !Number.isInteger(focus) || focus < 1 || focus > 180 ||
     !Number.isInteger(short) || short < 1 || short > 60 ||
     !Number.isInteger(long) || long < 1 || long > 90
   ) {
-    alert("Please enter whole minutes within the allowed ranges: focus 1–180, short break 1–60, long break 1–90.");
+    alert(
+      "Please enter whole minutes within the allowed ranges: focus 1–180, short break 1–60, long break 1–90."
+    );
     return;
   }
 
   timerSettings = { focus, short, long };
   localStorage.setItem(TIMER_SETTINGS_KEY, JSON.stringify(timerSettings));
+
   pauseTimer();
   timerSeconds = getTimerLength(timerMode);
   updateTimerDisplay();
@@ -1199,8 +1403,12 @@ function startTimer() {
   if (timerInterval !== null) return;
 
   setBuddyMessage(
-    timerMode === "focus" ? "Focus time! I'll cheer you on! 📚" : "Enjoy your break, bestie! 🌷",
-    timerMode === "focus" ? "♡ focusing together ♡" : "♡ taking a little rest ♡"
+    timerMode === "focus"
+      ? "Focus time! I'll cheer you on! 📚"
+      : "Enjoy your break, bestie! 🌷",
+    timerMode === "focus"
+      ? "♡ focusing together ♡"
+      : "♡ taking a little rest ♡"
   );
 
   timerInterval = setInterval(() => {
@@ -1253,6 +1461,7 @@ function resetTimer() {
 function setBuddyMessage(message, mood) {
   const messageBox = document.getElementById("buddyMessage");
   const moodBox = document.getElementById("buddyMood");
+
   if (messageBox) messageBox.textContent = message;
   if (moodBox) moodBox.textContent = mood;
 }
@@ -1268,9 +1477,11 @@ function updateBuddyForMode() {
 function petBuddy() {
   const buddy = document.getElementById("studyBuddy");
   if (!buddy) return;
+
   buddy.classList.remove("happy");
   void buddy.offsetWidth;
   buddy.classList.add("happy");
+
   setBuddyMessage("Hehe! That tickles! Thank you! 💕", "♡ feeling loved ♡");
   setTimeout(() => buddy.classList.remove("happy"), 1800);
 }
@@ -1278,13 +1489,18 @@ function petBuddy() {
 function changeBuddy() {
   const buddy = document.getElementById("studyBuddy");
   if (!buddy) return;
+
   let nextIndex = buddyIndex;
+
   while (buddies.length > 1 && nextIndex === buddyIndex) {
     nextIndex = Math.floor(Math.random() * buddies.length);
   }
+
   buddyIndex = nextIndex;
   buddy.textContent = buddies[buddyIndex];
+
   setBuddyMessage("Hello! I'm your new study buddy! 🎀", "♡ new friend ♡");
+
   buddy.classList.remove("happy");
   void buddy.offsetWidth;
   buddy.classList.add("happy");
@@ -1292,30 +1508,42 @@ function changeBuddy() {
 
 function celebrateBuddy() {
   const buddy = document.getElementById("studyBuddy");
+
   if (buddy) {
     buddy.classList.remove("happy");
     void buddy.offsetWidth;
     buddy.classList.add("happy");
   }
+
   const message = timerMode === "focus"
     ? "You did it! I'm so proud of you! 🎉💗"
     : "Break complete! You're doing great! ✨";
+
   setBuddyMessage(message, "♡ amazing work ♡");
-  if (buddy) setTimeout(() => buddy.classList.remove("happy"), 2000);
+
+  if (buddy) {
+    setTimeout(() => buddy.classList.remove("happy"), 2000);
+  }
 }
 
 // PROGRESS TRACKING
 function renderProgress() {
-  document.getElementById("progressSets").textContent = studySets.length;
-  document.getElementById("progressCards").textContent = reviewedCards;
-  document.getElementById("progressQuizzes").textContent = quizHistory.length;
-
+  const setsDisplay = document.getElementById("progressSets");
+  const cardsDisplay = document.getElementById("progressCards");
+  const quizzesDisplay = document.getElementById("progressQuizzes");
   const history = document.getElementById("quizHistory");
+
+  if (setsDisplay) setsDisplay.textContent = studySets.length;
+  if (cardsDisplay) cardsDisplay.textContent = reviewedCards;
+  if (quizzesDisplay) quizzesDisplay.textContent = quizHistory.length;
+
   if (!history) return;
+
   history.innerHTML = "";
 
   if (!quizHistory.length) {
-    history.textContent = "No quiz attempts yet. Take a quiz to see your progress! 💗";
+    history.textContent =
+      "No quiz attempts yet. Take a quiz to see your progress! 💗";
     return;
   }
 
@@ -1341,6 +1569,7 @@ function renderProgress() {
 // THEME
 function toggleTheme() {
   document.body.classList.toggle("soft-mode");
+
   const soft = document.body.classList.contains("soft-mode");
   localStorage.setItem(THEME_KEY, soft ? "soft" : "default");
 }
@@ -1360,15 +1589,20 @@ document.addEventListener("DOMContentLoaded", () => {
   displayEvents();
   displayTodos();
   readTimerSettings();
+
   timerSeconds = getTimerLength(timerMode);
   updateTimerDisplay();
   loadTheme();
 
   const themeButton = document.getElementById("themeBtn");
-  if (themeButton) themeButton.addEventListener("click", toggleTheme);
+  if (themeButton) {
+    themeButton.addEventListener("click", toggleTheme);
+  }
 
   const confirmButton = document.getElementById("confirmDelete");
-  if (confirmButton) confirmButton.addEventListener("click", confirmDeleteQuiz);
+  if (confirmButton) {
+    confirmButton.addEventListener("click", confirmDeleteQuiz);
+  }
 
   const buddy = document.getElementById("studyBuddy");
   if (buddy) buddy.textContent = buddies[buddyIndex];

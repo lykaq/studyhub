@@ -230,16 +230,33 @@ Acquada dali buoni Segnialli — Island of Good Signs"></textarea>
       </section>
 
       <!-- NOTES -->
-      <section id="notes" class="screen">
-        <div class="screen-head">
-          <button class="back" onclick="showStudy()">← Back</button>
-          <div>
-            <div class="eyebrow">REVIEW</div>
-            <h2 id="notesTitle">Study Notes</h2>
-          </div>
-        </div>
-        <div id="notesContent" class="notes-card"></div>
-      </section>
+     <!-- NOTES -->
+<section id="notes" class="screen">
+  <div class="screen-head">
+    <button class="back" onclick="showStudy()">← Back</button>
+    <div>
+      <div class="eyebrow">REVIEW</div>
+      <h2 id="notesTitle">Study Notes</h2>
+    </div>
+  </div>
+
+  <div class="notes-toolbar">
+    <span>Highlight:</span>
+    <button type="button" class="highlight-btn pink"
+      onmousedown="event.preventDefault()"
+      onclick="highlightText('#f8c6dc')">🩷 Pink</button>
+    <button type="button" class="highlight-btn yellow"
+      onmousedown="event.preventDefault()"
+      onclick="highlightText('#fff0a6')">💛 Yellow</button>
+    <button type="button" class="highlight-btn green"
+      onmousedown="event.preventDefault()"
+      onclick="highlightText('#c9f2d1')">💚 Green</button>
+  </div>
+
+  <div id="notesContent" class="notes-card"
+       contenteditable="true"
+       oninput="saveNoteHighlights()"></div>
+</section>
 
       <!-- FLASHCARD CREATOR -->
       <section id="flashcardCreator" class="screen">
@@ -370,26 +387,64 @@ Acquada dali buoni Segnialli — Island of Good Signs"></textarea>
       </section>
 
       <!-- CALENDAR -->
-      <section id="calendar" class="screen">
-        <div class="screen-head">
-          <button class="back" onclick="showHome()">← Back</button>
-          <div>
-            <div class="eyebrow">PLAN YOUR STUDY SCHEDULE</div>
-            <h2>My Calendar 📅</h2>
-          </div>
-        </div>
+      ```html
+<!-- CALENDAR -->
+<section id="calendar" class="screen">
+  <div class="screen-head">
+    <button class="back" onclick="showHome()">← Back</button>
+    <div>
+      <div class="eyebrow">PLAN YOUR STUDY SCHEDULE</div>
+      <h2>My Calendar 📅</h2>
+    </div>
+  </div>
 
-        <div class="form-card">
-          <label for="eventTitle">Event / Exam / Deadline</label>
-          <input id="eventTitle" type="text" placeholder="Example: History Midterm Exam">
+  <!-- CUTE CALENDAR -->
+  <div class="calendar-card">
+    <div class="calendar-header">
+      <button class="calendar-nav" onclick="changeMonth(-1)">❮</button>
+      <h2 id="calendarMonthYear"></h2>
+      <button class="calendar-nav" onclick="changeMonth(1)">❯</button>
+    </div>
 
-          <label for="eventDate">Date</label>
-          <input id="eventDate" type="date">
+    <div class="calendar-weekdays">
+      <span>Sun</span>
+      <span>Mon</span>
+      <span>Tue</span>
+      <span>Wed</span>
+      <span>Thu</span>
+      <span>Fri</span>
+      <span>Sat</span>
+    </div>
 
-          <button class="primary full" onclick="addEvent()">＋ Add Event</button>
-          <div id="calendarEvents"></div>
-        </div>
-      </section>
+    <div id="calendarGrid" class="calendar-grid"></div>
+
+    <p class="calendar-hint">♡ Select a date to see your events ♡</p>
+  </div>
+
+  <!-- ADD EVENT -->
+  <div class="form-card calendar-form">
+    <h3>🎀 Add a Study Event</h3>
+
+    <label for="eventTitle">Event / Exam / Deadline</label>
+    <input
+      id="eventTitle"
+      type="text"
+      placeholder="Example: History Midterm Exam"
+    >
+
+    <label for="eventDate">Date</label>
+    <input id="eventDate" type="date">
+
+    <button class="primary full" onclick="addEvent()">
+      ＋ Add Event
+    </button>
+  </div>
+
+  <!-- EVENT LIST -->
+  <div id="calendarEvents" class="calendar-events"></div>
+</section>
+```
+
 
       <!-- TO-DO LIST -->
       <section id="todo" class="screen">

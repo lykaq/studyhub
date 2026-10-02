@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ff83b5">
+  <title>Study Hub | My Study Sets</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app">
+  <div class="cute-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="cute-sidebar">
+      <div class="sidebar-title">✦ STUDY HUB ✦</div>
+
+      <div class="character-box">
+        <div class="floating-star star-one">✦</div>
+        <div class="floating-star star-two">♡</div>
+        <div class="floating-star star-three">✧</div>
+
+        <div class="character">
+          <div class="ear left-ear"></div>
+          <div class="ear right-ear"></div>
+          <div class="face">
+            <div class="eye left-eye"></div>
+            <div class="eye right-eye"></div>
+            <div class="blush left-blush"></div>
+            <div class="blush right-blush"></div>
+            <div class="mouth">⌣</div>
+          </div>
+          <div class="character-bow">🎀</div>
+        </div>
+      </div>
+
+      <div class="side-message">
+        <strong>YOU GOT THIS! ♡</strong>
+        <span>Study a little. Remember a lot.</span>
+      </div>
+
+      <div class="side-menu">
+        <button class="side-item" onclick="showHome()">🏠 Home</button>
+        <button class="side-item" onclick="showSets()">📚 My Study Sets</button>
+        <button class="side-item" onclick="showCreate()">＋ Create Set</button>
+        <button class="side-item" onclick="showCalendar()">📅 Calendar</button>
+        <button class="side-item" onclick="showTodo()">📝 To-Do List</button>
+        <button class="side-item" onclick="showTimer()">⏱️ Pomodoro Timer</button>
+        <button class="side-item" onclick="showProgress()">📊 My Progress</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div class="brand">STUDY<span>HUB</span></div>
+        <div class="brand-tag">your cute study space ♡</div>
+        <button class="icon-btn" id="themeBtn" title="Cute mode">✦</button>
+      </div>
+
+      <!-- HOME -->
+      <section id="home" class="screen active">
+        <div class="hero">
+          <div class="hero-decoration">✦ ♡ ✧</div>
+          <div class="hero-badge">WELCOME TO YOUR STUDY SPACE</div>
+
+          <h1>STUDY<br><span>SMART.</span></h1>
+
+          <p>
+            Turn your own lessons into notes, flashcards,
+            active-recall practice, and quizzes.
+            Your study materials stay saved in your browser.
+          </p>
+
+          <div class="hero-actions">
+            <button class="primary" onclick="showCreate()">＋ Create Study Set</button>
+            <button class="secondary" onclick="showSets()">📚 My Study Sets</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div>
+            <strong id="setCount">0</strong>
+            <span>Study Sets</span>
+          </div>
+          <div>
+            <strong id="noteCount">0</strong>
+            <span>Study Points</span>
+          </div>
+          <div>
+            <strong id="bestScore">0%</strong>
+            <span>Best Quiz Score</span>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <div class="eyebrow">HOW IT WORKS</div>
+          <h2>Study your way ♡</h2>
+        </div>
+
+        <div class="steps">
+          <div>
+            <b>01</b>
+            <div class="step-icon">📝</div>
+            <h3>Add your lesson</h3>
+            <p>Put the information you need to study into your own study set.</p>
+          </div>
+
+          <div>
+            <b>02</b>
+            <div class="step-icon">🃏</div>
+            <h3>Make flashcards</h3>
+            <p>Put the definition or question on the front and the answer on the back.</p>
+          </div>
+
+          <div>
+            <b>03</b>
+            <div class="step-icon">🧠</div>
+            <h3>Test yourself</h3>
+            <p>Use active recall and quizzes to see what you actually remember.</p>
+          </div>
+        </div>
+
+        <div class="cute-note">
+          <span>💗</span>
+          <div>
+            <strong>Study tip</strong>
+            <p>Try answering a flashcard before flipping it. That's active recall!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREATE STUDY SET -->
+      <section id="create" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">NEW STUDY SET</div>
+            <h2>Create your study set ♡</h2>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label for="setTitle">Study Set Title</label>
+          <input id="setTitle" type="text" placeholder="Example: First Voyage of Magellan">
+
+          <label for="setSubject">Subject</label>
+          <input id="setSubject" type="text" placeholder="Example: Philippine History">
+
+          <label for="setNotes">Study Notes</label>
+          <textarea id="setNotes" placeholder="Put the information you need to study here...
+
+Example:
+March 17, 1521 — Arrival in Zamal
+Zamal — Present-day Samar
+Humunu — Present-day Homonhon
+Acquada dali buoni Segnialli — Island of Good Signs"></textarea>
+
+          <p class="helper">
+            💡 Put each important fact on a separate line.
+            You can create your own flashcards after saving.
+          </p>
+
+          <button class="primary full" onclick="saveSet()">💾 Save Study Set</button>
+        </div>
+      </section>
+
+      <!-- STUDY SETS -->
+      <section id="sets" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">YOUR MATERIALS</div>
+            <h2>My Study Sets ♡</h2>
+          </div>
+        </div>
+        <div id="setList" class="set-list"></div>
+      </section>
+
+      <!-- STUDY MENU -->
+      <section id="study" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showSets()">← Back</button>
+          <div>
+            <div class="eyebrow" id="studySubject">SUBJECT</div>
+            <h2 id="studyTitle">Study Set</h2>
+          </div>
+          <span><span id="studyLines">0</span> points</span>
+        </div>
+
+        <div class="study-actions">
+          <button class="study-card" onclick="openNotes()">
+            <span>📖</span>
+            <b>Study Notes</b>
+            <small>Read your saved lesson.</small>
+          </button>
+
+          <button class="study-card" onclick="openFlashcards()">
+            <span>🃏</span>
+            <b>Flashcards</b>
+            <small>Test yourself with front and back cards.</small>
+          </button>
+
+          <button class="study-card" onclick="openFlashcardCreator()">
+            <span>✨</span>
+            <b>Create Flashcards</b>
+            <small>Make your own question and answer cards.</small>
+          </button>
+
+          <button class="study-card" onclick="openQuiz()">
+            <span>📝</span>
+            <b>Quiz Me</b>
+            <small>Take a multiple-choice quiz.</small>
+          </button>
+        </div>
+
+        <div class="study-info">
+          <strong>💗 Active Recall</strong>
+          <p>
+            Look at the front of a flashcard, try to remember the answer,
+            then flip the card to check yourself.
+          </p>
+        </div>
+      </section>
+
+      <!-- NOTES -->
+      <section id="notes" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showStudy()">← Back</button>
+          <div>
+            <div class="eyebrow">REVIEW</div>
+            <h2 id="notesTitle">Study Notes</h2>
+          </div>
+        </div>
+        <div id="notesContent" class="notes-card"></div>
+      </section>
+
+      <!-- FLASHCARD CREATOR -->
+      <section id="flashcardCreator" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showStudy()">← Back</button>
+          <div>
+            <div class="eyebrow">MAKE YOUR OWN</div>
+            <h2>Create Flashcards 🎀</h2>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label for="flashFront">🩷 Front — Definition / Question</label>
+          <textarea id="flashFront" placeholder="Example: What is the process by which plants make food?"></textarea>
+
+          <label for="flashBack">🖤 Back — Answer</label>
+          <textarea id="flashBack" placeholder="Example: Photosynthesis"></textarea>
+
+          <button class="primary full" onclick="addFlashcard()">＋ Add Flashcard</button>
+          <div id="flashcardList" style="margin-top:25px;"></div>
+        </div>
+      </section>
+
+      <!-- FLASHCARDS -->
+      <section id="flashcards" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showStudy()">← Back</button>
+          <div>
+            <div class="eyebrow">ACTIVE RECALL</div>
+            <h2>Flashcards 🃏</h2>
+          </div>
+        </div>
+
+        <div class="flash-wrap">
+          <button class="arrow" onclick="prevCard()">‹</button>
+
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="card-inner">
+              <div class="card-face">
+                <div class="card-label">FRONT</div>
+                <div id="cardFront">Your definition or question</div>
+                <small>Tap to reveal the answer ♡</small>
+              </div>
+
+              <div class="card-face back">
+                <div class="card-label">BACK — ANSWER</div>
+                <div id="cardBack">Your answer</div>
+                <small>Tap to flip back</small>
+              </div>
+            </div>
+          </div>
+
+          <button class="arrow" onclick="nextCard()">›</button>
+        </div>
+
+        <div class="card-controls">
+          <button class="secondary" onclick="showFlashcardCreator()">✏️ Edit Cards</button>
+          <span id="cardProgress" style="padding:12px;">0 / 0</span>
+          <button class="secondary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+          <button class="primary" onclick="markCardReviewed()">✓ Reviewed</button>
+        </div>
+      </section>
+
+      <!-- QUIZ -->
+      <section id="quiz" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showStudy()">← Back</button>
+          <div>
+            <div class="eyebrow">ACTIVE RECALL QUIZ</div>
+            <h2>Quiz Time 📝</h2>
+          </div>
+        </div>
+
+        <div class="form-card" id="quizCreator">
+          <h2>Create Your Quiz 🎀</h2>
+          <p class="helper">Create your own questions and answers. Your quiz is saved in this Study Set.</p>
+
+          <label for="quizQuestionInput">Question</label>
+          <textarea id="quizQuestionInput" placeholder="Enter your question..." rows="3"></textarea>
+
+          <label>Answer Choices</label>
+          <input id="quizChoice1" placeholder="Choice A">
+          <input id="quizChoice2" placeholder="Choice B">
+          <input id="quizChoice3" placeholder="Choice C">
+          <input id="quizChoice4" placeholder="Choice D">
+
+          <label for="correctChoice">Correct Answer</label>
+          <select id="correctChoice">
+            <option value="0">Choice A</option>
+            <option value="1">Choice B</option>
+            <option value="2">Choice C</option>
+            <option value="3">Choice D</option>
+          </select>
+
+          <button class="primary full" onclick="addQuizQuestion()">＋ Add Question</button>
+
+          <h3>Your Questions</h3>
+          <div id="quizQuestionList"></div>
+
+          <button class="secondary full" onclick="shuffleQuizQuestions()">🔀 Shuffle Questions</button>
+          <button class="primary full" onclick="startQuiz()">Start Quiz 💗</button>
+          <button class="back" onclick="showStudy()">Back to Study Set</button>
+        </div>
+
+        <div id="quizBox" class="quiz-box">
+          <div class="progress">
+            <div id="progressBar" style="width:0%;"></div>
+          </div>
+
+          <div id="questionNumber" class="question-number">QUESTION 1</div>
+          <div id="quizProgress" style="color:#dcb8ca;margin-top:8px;">1 / 1</div>
+          <h2 id="questionText">Question</h2>
+          <div id="options" class="options"></div>
+
+          <button id="nextQuestion" class="primary full" onclick="nextQuestion()" disabled>
+            Next Question →
+          </button>
+        </div>
+
+        <div id="quizResult" class="result hidden">
+          <div class="result-icon">🎀</div>
+          <h2>Quiz Complete!</h2>
+          <div id="finalScore" class="score-big">0%</div>
+          <p id="resultText">Great job!</p>
+          <button class="primary" onclick="startQuiz()">Try Again</button>
+          <button class="secondary" onclick="showStudy()">Back to Study Set</button>
+        </div>
+      </section>
+
+      <!-- CALENDAR -->
+      <section id="calendar" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">PLAN YOUR STUDY SCHEDULE</div>
+            <h2>My Calendar 📅</h2>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label for="eventTitle">Event / Exam / Deadline</label>
+          <input id="eventTitle" type="text" placeholder="Example: History Midterm Exam">
+
+          <label for="eventDate">Date</label>
+          <input id="eventDate" type="date">
+
+          <button class="primary full" onclick="addEvent()">＋ Add Event</button>
+          <div id="calendarEvents"></div>
+        </div>
+      </section>
+
+      <!-- TO-DO LIST -->
+      <section id="todo" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">STAY ORGANIZED</div>
+            <h2>My To-Do List 📝</h2>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <label for="todoTitle">Task</label>
+          <input id="todoTitle" type="text" placeholder="What do you need to do?">
+
+          <label for="todoDate">Due Date</label>
+          <input id="todoDate" type="date">
+
+          <label for="todoPriority">Priority</label>
+          <select id="todoPriority">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+          </select>
+
+          <button class="primary full" onclick="addTodo()">＋ Add Task</button>
+          <div id="todoList"></div>
+        </div>
+      </section>
+
+      <!-- POMODORO TIMER -->
+      <section id="timer" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">FOCUS AND TAKE BREAKS</div>
+            <h2>Pomodoro Timer ⏱️</h2>
+          </div>
+        </div>
+
+        <div class="form-card timer-card">
+          <div id="timerMode">Focus Time</div>
+          <h1 id="timerDisplay">25:00</h1>
+          <p id="timerSessions">Completed sessions: 0</p>
+
+          <div class="hero-actions">
+            <button class="primary" id="timerStart" onclick="startTimer()">▶ Start</button>
+            <button class="secondary" onclick="pauseTimer()">⏸ Pause</button>
+            <button class="secondary" onclick="resetTimer()">↻ Reset</button>
+          </div>
+
+          <div class="hero-actions">
+            <button class="secondary" onclick="setTimerMode('focus')">25 min Focus</button>
+            <button class="secondary" onclick="setTimerMode('short')">5 min Break</button>
+            <button class="secondary" onclick="setTimerMode('long')">15 min Break</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROGRESS -->
+      <section id="progress" class="screen">
+        <div class="screen-head">
+          <button class="back" onclick="showHome()">← Back</button>
+          <div>
+            <div class="eyebrow">YOUR STUDY ACTIVITY</div>
+            <h2>My Progress 📊</h2>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div>
+            <strong id="progressSets">0</strong>
+            <span>Study Sets</span>
+          </div>
+          <div>
+            <strong id="progressCards">0</strong>
+            <span>Flashcards Reviewed</span>
+          </div>
+          <div>
+            <strong id="progressQuizzes">0</strong>
+            <span>Quizzes Taken</span>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Quiz History</h3>
+          <div id="quizHistory"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteQuizModal" class="delete-modal hidden">
+  <div class="form-card">
+    <h2>Are you sure? 💗</h2>
+    <p id="deleteModalText">Do you want to delete this item?</p>
+    <div class="hero-actions">
+      <button class="primary" id="confirmDelete">Yes, Delete</button>
+      <button class="secondary" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

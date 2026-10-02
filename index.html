@@ -320,72 +320,113 @@ Acquada dali buoni Segnialli — Island of Good Signs"></textarea>
         </div>
       </section>
 
-      <!-- QUIZ -->
-      <section id="quiz" class="screen">
-        <div class="screen-head">
-          <button class="back" onclick="showStudy()">← Back</button>
-          <div>
-            <div class="eyebrow">ACTIVE RECALL QUIZ</div>
-            <h2>Quiz Time 📝</h2>
-          </div>
-        </div>
+      
+<!-- QUIZ -->
+<section id="quiz" class="screen">
+  <div class="screen-head">
+    <button class="back" onclick="showStudy()">← Back</button>
+    <div>
+      <div class="eyebrow">ACTIVE RECALL QUIZ</div>
+      <h2>Quiz Time 📝</h2>
+    </div>
+  </div>
 
-        <div class="form-card" id="quizCreator">
-          <h2>Create Your Quiz 🎀</h2>
-          <p class="helper">Create your own questions and answers. Your quiz is saved in this Study Set.</p>
+  <div class="form-card" id="quizCreator">
+    <h2>Create Your Quiz 🎀</h2>
+    <p class="helper">Create different types of questions for your Study Set.</p>
 
-          <label for="quizQuestionInput">Question</label>
-          <textarea id="quizQuestionInput" placeholder="Enter your question..." rows="3"></textarea>
+    <label for="quizType">Question Type</label>
+    <select id="quizType" onchange="updateQuizType()">
+      <option value="multiple">Multiple Choice</option>
+      <option value="truefalse">True or False</option>
+      <option value="identification">Identification</option>
+      <option value="classification">Classification</option>
+    </select>
 
-          <label>Answer Choices</label>
-          <input id="quizChoice1" placeholder="Choice A">
-          <input id="quizChoice2" placeholder="Choice B">
-          <input id="quizChoice3" placeholder="Choice C">
-          <input id="quizChoice4" placeholder="Choice D">
+    <label for="quizQuestionInput">Question / Item</label>
+    <textarea id="quizQuestionInput" placeholder="Enter your question..." rows="3"></textarea>
 
-          <label for="correctChoice">Correct Answer</label>
-          <select id="correctChoice">
-            <option value="0">Choice A</option>
-            <option value="1">Choice B</option>
-            <option value="2">Choice C</option>
-            <option value="3">Choice D</option>
-          </select>
+    <div id="multipleFields">
+      <label>Answer Choices</label>
+      <input id="quizChoice1" placeholder="Choice A">
+      <input id="quizChoice2" placeholder="Choice B">
+      <input id="quizChoice3" placeholder="Choice C">
+      <input id="quizChoice4" placeholder="Choice D">
 
-          <button class="primary full" onclick="addQuizQuestion()">＋ Add Question</button>
+      <label for="correctChoice">Correct Answer</label>
+      <select id="correctChoice">
+        <option value="0">Choice A</option>
+        <option value="1">Choice B</option>
+        <option value="2">Choice C</option>
+        <option value="3">Choice D</option>
+      </select>
+    </div>
 
-          <h3>Your Questions</h3>
-          <div id="quizQuestionList"></div>
+    <div id="trueFalseFields" class="hidden">
+      <label for="trueFalseAnswer">Correct Answer</label>
+      <select id="trueFalseAnswer">
+        <option value="true">True</option>
+        <option value="false">False</option>
+      </select>
+    </div>
 
-          <button class="secondary full" onclick="shuffleQuizQuestions()">🔀 Shuffle Questions</button>
-          <button class="primary full" onclick="startQuiz()">Start Quiz 💗</button>
-          <button class="back" onclick="showStudy()">Back to Study Set</button>
-        </div>
+    <div id="identificationFields" class="hidden">
+      <label for="identificationAnswer">Correct Answer</label>
+      <input id="identificationAnswer" placeholder="Type the correct answer">
+    </div>
 
-        <div id="quizBox" class="quiz-box">
-          <div class="progress">
-            <div id="progressBar" style="width:0%;"></div>
-          </div>
+    <div id="classificationFields" class="hidden">
+      <p class="helper">Enter the categories as answer choices, then choose the correct category for the item.</p>
+      <label>Categories</label>
+      <input id="classChoice1" placeholder="Category A">
+      <input id="classChoice2" placeholder="Category B">
+      <input id="classChoice3" placeholder="Category C (optional)">
+      <input id="classChoice4" placeholder="Category D (optional)">
 
-          <div id="questionNumber" class="question-number">QUESTION 1</div>
-          <div id="quizProgress" style="color:#dcb8ca;margin-top:8px;">1 / 1</div>
-          <h2 id="questionText">Question</h2>
-          <div id="options" class="options"></div>
+      <label for="classCorrectChoice">Correct Category</label>
+      <select id="classCorrectChoice">
+        <option value="0">Category A</option>
+        <option value="1">Category B</option>
+        <option value="2">Category C</option>
+        <option value="3">Category D</option>
+      </select>
+    </div>
 
-          <button id="nextQuestion" class="primary full" onclick="nextQuestion()" disabled>
-            Next Question →
-          </button>
-        </div>
+    <button class="primary full" onclick="addQuizQuestion()">＋ Add Question</button>
 
-        <div id="quizResult" class="result hidden">
-          <div class="result-icon">🎀</div>
-          <h2>Quiz Complete!</h2>
-          <div id="finalScore" class="score-big">0%</div>
-          <p id="resultText">Great job!</p>
-          <button class="primary" onclick="startQuiz()">Try Again</button>
-          <button class="secondary" onclick="showStudy()">Back to Study Set</button>
-        </div>
-      </section>
+    <h3>Your Questions</h3>
+    <div id="quizQuestionList"></div>
 
+    <button class="secondary full" onclick="shuffleQuizQuestions()">🔀 Shuffle Questions</button>
+    <button class="primary full" onclick="startQuiz()">Start Quiz 💗</button>
+    <button class="back" onclick="showStudy()">Back to Study Set</button>
+  </div>
+
+  <div id="quizBox" class="quiz-box hidden">
+    <div class="progress">
+      <div id="progressBar" style="width:0%;"></div>
+    </div>
+
+    <div id="questionNumber" class="question-number">QUESTION 1</div>
+    <div id="quizProgress" style="color:#dcb8ca;margin-top:8px;">1 / 1</div>
+    <h2 id="questionText">Question</h2>
+    <div id="options" class="options"></div>
+
+    <button id="nextQuestion" class="primary full" onclick="nextQuestion()" disabled>
+      Next Question →
+    </button>
+  </div>
+
+  <div id="quizResult" class="result hidden">
+    <div class="result-icon">🎀</div>
+    <h2>Quiz Complete!</h2>
+    <div id="finalScore" class="score-big">0%</div>
+    <p id="resultText">Great job!</p>
+    <button class="primary" onclick="startQuiz()">Try Again</button>
+    <button class="secondary" onclick="openQuiz()">Back to Quiz Creator</button>
+    <button class="secondary" onclick="showStudy()">Back to Study Set</button>
+  </div>
+</section>
       
     
 <!-- CALENDAR -->

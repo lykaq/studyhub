@@ -1239,12 +1239,12 @@ body.soft-mode .cute-sidebar {
         width: 100%;
     }
 }
-```css
+
   .card-controls button {
     font-size: 11px;
     padding: 10px;
   }
-}
+
 
 @media (max-width: 400px) {
   .hero h1 { font-size: 36px; }
@@ -1472,8 +1472,8 @@ body.soft-mode .cute-sidebar {
     font-size: 8px;
   }
 }
-```
-```css
+
+
 /* 🎀 CUTE PASTEL CALENDAR 🎀 */
 
 #calendar {
@@ -1567,7 +1567,7 @@ body.soft-mode .cute-sidebar {
     font-size: 12px;
   }
 }
-```
+
 
 /* STUDY NOTES HIGHLIGHTER */
 .notes-toolbar {
